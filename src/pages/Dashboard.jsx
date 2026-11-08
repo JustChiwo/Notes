@@ -1,22 +1,24 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { logout } from '../api/api.js';
-import { useAuth } from '../context/AuthContext.jsx';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { logout } from "../api/api.js";
+import DashboardLayout from "../components/DashboardLayout.jsx";
+import EmptyState from "../components/EmptyState.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 
 function Dashboard() {
   const navigate = useNavigate();
   const { user, clearUser } = useAuth();
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleLogout() {
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
       await logout();
       clearUser();
-      navigate('/login');
+      navigate("/login");
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -25,21 +27,21 @@ function Dashboard() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-10">
-      <section className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg sm:p-10">
-        <h1 className="text-2xl font-bold text-slate-900">Welcome, {user.email}</h1>
-        <p className="mt-2 text-sm text-slate-600">Your private notes will be here.</p>
-        {error && <p className="mt-5 text-sm text-red-600" role="alert">{error}</p>}
-        <button
-          className="mt-8 w-full rounded-lg bg-indigo-600 px-4 py-2.5 font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-          disabled={loading}
-          onClick={handleLogout}
-          type="button"
-        >
-          {loading ? 'Logging out...' : 'Log out'}
-        </button>
-      </section>
-    </main>
+    <DashboardLayout
+      error={error}
+      loading={loading}
+      onLogout={handleLogout}
+      userEmail={user.email}
+    >
+      <div className="mb-7 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="mb-1 text-xs font-medium uppercase tracking-[0.16em] text-muted">Your workspace</p>
+          <h2 className="text-2xl font-semibold tracking-tight text-ink sm:text-[28px]">My Notes</h2>
+        </div>
+        <span className="text-sm text-muted">Welcome, {user.email}</span>
+      </div>
+      <EmptyState />
+    </DashboardLayout>
   );
 }
 
