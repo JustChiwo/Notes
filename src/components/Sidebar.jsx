@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import Logo from './Logo.jsx';
 
 function NoteList({ notes, onSelectNote, onClose }) {
   const sortedNotes = [...notes].sort((first, second) => {
@@ -51,8 +50,7 @@ function Sidebar({ notes, onSelectNote, mobileOpen, onClose }) {
     <>
       <aside className="hidden h-full min-h-0 w-52 shrink-0 flex-col border-r border-line bg-paper px-5 py-6 md:flex">
         <div className="mb-8 shrink-0">
-          <Logo />
-          <h1 className="mt-4 text-lg font-bold tracking-tight text-ink">MY NOTES</h1>
+          <h1 className="text-lg font-bold tracking-tight text-ink">MY NOTES</h1>
         </div>
         <NoteList notes={notes} onSelectNote={onSelectNote} onClose={() => {}} />
       </aside>
@@ -78,8 +76,7 @@ function Sidebar({ notes, onSelectNote, mobileOpen, onClose }) {
           >
             <div className="mb-8 flex shrink-0 items-center justify-between">
               <div>
-                <Logo />
-                <h2 className="mt-3 text-lg font-bold tracking-tight text-ink">MY NOTES</h2>
+                <h2 className="text-lg font-bold tracking-tight text-ink">MY NOTES</h2>
               </div>
               <button
                 aria-label="Close notes menu"

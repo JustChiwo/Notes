@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react';
-import Logo from './Logo.jsx';
 import Sidebar from './Sidebar.jsx';
 
 function DashboardLayout({
@@ -24,8 +23,7 @@ function DashboardLayout({
     <main className="h-screen min-h-screen overflow-hidden bg-canvas font-sans text-ink">
       <section className="flex h-full min-h-0 w-full flex-col overflow-hidden bg-paper">
         <header className="flex shrink-0 flex-wrap items-center justify-between gap-4 border-b border-line px-5 py-4 sm:px-8 lg:px-10">
-          <div className="hidden items-center gap-8 sm:gap-12 md:flex">
-            <Logo />
+          <div className="hidden items-center md:flex">
             <h1 className="text-xl font-bold tracking-tight text-ink sm:text-2xl">MY NOTES</h1>
           </div>
           <div className="flex items-center gap-3 md:hidden">
