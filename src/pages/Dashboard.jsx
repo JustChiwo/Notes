@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createNote, deleteNote, getNotes, logout } from "../api/api.js";
+import { createNote, deleteNote, getNotes, logout, updateNote } from "../api/api.js";
 import ConfirmDialog from "../components/ConfirmDialog.jsx";
 import DashboardLayout from "../components/DashboardLayout.jsx";
 import EmptyState from "../components/EmptyState.jsx";
@@ -24,6 +24,7 @@ function Dashboard() {
   const [discardConfirmationOpen, setDiscardConfirmationOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [editingNote, setEditingNote] = useState(null);
   const [saving, setSaving] = useState(false);
   const [editorError, setEditorError] = useState("");
   const [titleError, setTitleError] = useState("");
@@ -64,6 +65,7 @@ function Dashboard() {
     setEditorError("");
     setTitleError("");
     setContentError("");
+    setEditingNote(null);
     setDiscardConfirmationOpen(false);
     setEditorOpen(false);
   }
@@ -71,6 +73,17 @@ function Dashboard() {
   function openEditor() {
     setTitle("");
     setContent("");
+    setEditorError("");
+    setTitleError("");
+    setContentError("");
+    setEditingNote(null);
+    setEditorOpen(true);
+  }
+
+  function openEditEditor(note) {
+    setTitle(note.title);
+    setContent(note.content);
+    setEditingNote(note);
     setEditorError("");
     setTitleError("");
     setContentError("");
@@ -83,7 +96,11 @@ function Dashboard() {
     }
 
     // Keep typed text until the user confirms they want to discard it.
-    if (title.trim() || content.trim()) {
+    const hasChanges = editingNote
+      ? title !== editingNote.title || content !== editingNote.content
+      : Boolean(title.trim() || content.trim());
+
+    if (hasChanges) {
       setDiscardConfirmationOpen(true);
     } else {
       resetEditor();
@@ -133,8 +150,21 @@ function Dashboard() {
     setSaving(true);
 
     try {
-      const newNote = await createNote(trimmedTitle, trimmedContent);
-      setNotes((currentNotes) => [newNote, ...currentNotes]);
+      if (editingNote) {
+        const noteId = editingNote.id ?? editingNote._id;
+        const updatedNote = await updateNote(noteId, {
+          title: trimmedTitle,
+          content: trimmedContent,
+        });
+        setNotes((currentNotes) =>
+          currentNotes.map((note) => (
+            (note.id ?? note._id) === noteId ? updatedNote : note
+          )),
+        );
+      } else {
+        const newNote = await createNote(trimmedTitle, trimmedContent);
+        setNotes((currentNotes) => [newNote, ...currentNotes]);
+      }
       resetEditor();
     } catch (requestError) {
       setEditorError(requestError.message);
@@ -198,18 +228,31 @@ function Dashboard() {
                   {note.content}
                 </p>
               </div>
-              <button
-                aria-label={`Delete ${note.title}`}
-                className="mt-2 self-end rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-200"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setDeleteError("");
-                  setDeleteTarget(note);
-                }}
-                type="button"
-              >
-                Delete
-              </button>
+              <div className="mt-2 flex self-end gap-2">
+                <button
+                  aria-label={`Edit ${note.title}`}
+                  className="rounded-lg border border-line px-3 py-1.5 text-xs font-semibold text-brand transition hover:border-brand hover:bg-white/40 focus:outline-none focus:ring-4 focus:ring-brand/10"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    openEditEditor(note);
+                  }}
+                  type="button"
+                >
+                  Edit
+                </button>
+                <button
+                  aria-label={`Delete ${note.title}`}
+                  className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-200"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setDeleteError("");
+                    setDeleteTarget(note);
+                  }}
+                  type="button"
+                >
+                  Delete
+                </button>
+              </div>
             </article>
           ))}
         </section>
@@ -229,6 +272,7 @@ function Dashboard() {
           contentError={contentError}
           contentRef={contentInputRef}
           error={editorError}
+          heading={editingNote ? "Edit note" : "Create new note"}
           onContentChange={(nextContent) => {
             setContent(nextContent);
             setContentError("");

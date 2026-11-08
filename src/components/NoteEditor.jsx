@@ -11,6 +11,7 @@ function NoteEditor({
   titleError,
   contentError,
   contentRef,
+  heading,
 }) {
   function handleBackdropClick(event) {
     if (event.target === event.currentTarget) {
@@ -38,7 +39,7 @@ function NoteEditor({
         role="dialog"
       >
         <h2 className="text-2xl font-semibold tracking-tight text-ink" id="note-editor-title">
-          Create new note
+          {heading}
         </h2>
         <form className="mt-6 space-y-5" onSubmit={onSave}>
           <div>
