@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createNote, getNotes, logout } from "../api/api.js";
+import { createNote, deleteNote, getNotes, logout } from "../api/api.js";
 import ConfirmDialog from "../components/ConfirmDialog.jsx";
 import DashboardLayout from "../components/DashboardLayout.jsx";
 import EmptyState from "../components/EmptyState.jsx";
@@ -29,6 +29,9 @@ function Dashboard() {
   const [titleError, setTitleError] = useState("");
   const [contentError, setContentError] = useState("");
   const contentInputRef = useRef(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     let isMounted = true;
@@ -84,6 +87,27 @@ function Dashboard() {
       setDiscardConfirmationOpen(true);
     } else {
       resetEditor();
+    }
+  }
+
+  async function handleDelete() {
+    if (deleting || !deleteTarget) {
+      return;
+    }
+
+    setDeleting(true);
+    setDeleteError("");
+
+    try {
+      await deleteNote(deleteTarget.id ?? deleteTarget._id);
+      setNotes((currentNotes) =>
+        currentNotes.filter((note) => (note.id ?? note._id) !== (deleteTarget.id ?? deleteTarget._id)),
+      );
+      setDeleteTarget(null);
+    } catch (requestError) {
+      setDeleteError(requestError.message);
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -169,6 +193,18 @@ function Dashboard() {
               key={note.id ?? note._id ?? `${note.title}-${index}`}
             >
               <h3 className="line-clamp-2 text-lg font-semibold leading-6 text-ink">{note.title}</h3>
+              <button
+                aria-label={`Delete ${note.title}`}
+                className="mt-4 rounded-lg border border-ink/15 px-3 py-1.5 text-xs font-semibold text-ink/75 transition hover:border-ink/40 hover:bg-white/40 focus:outline-none focus:ring-4 focus:ring-brand/10"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setDeleteError("");
+                  setDeleteTarget(note);
+                }}
+                type="button"
+              >
+                Delete
+              </button>
               <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-ink/75">
                 {note.content}
               </p>
@@ -202,8 +238,27 @@ function Dashboard() {
 
       {discardConfirmationOpen && (
         <ConfirmDialog
-          onDiscard={resetEditor}
-          onKeepEditing={() => setDiscardConfirmationOpen(false)}
+          cancelLabel="Keep editing"
+          confirmLabel="Yes, discard"
+          message="Are you sure you want to discard? All your changes won't be saved."
+          onCancel={() => setDiscardConfirmationOpen(false)}
+          onConfirm={resetEditor}
+          title="Discard this note?"
+        />
+      )}
+      {deleteTarget && (
+        <ConfirmDialog
+          cancelLabel="Cancel"
+          confirmLabel="Yes, delete"
+          error={deleteError}
+          loading={deleting}
+          message="This can't be undone."
+          onCancel={() => {
+            setDeleteTarget(null);
+            setDeleteError("");
+          }}
+          onConfirm={handleDelete}
+          title="Delete this note?"
         />
       )}
     </DashboardLayout>
