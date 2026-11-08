@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import yourNotesIcon from '../assets/icons/yourNotes.svg';
 
 function NoteList({ notes, onSelectNote, onClose }) {
   const sortedNotes = [...notes].sort((first, second) => {
@@ -10,16 +11,13 @@ function NoteList({ notes, onSelectNote, onClose }) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <h2 className="mb-3 shrink-0 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
-        Your notes
-      </h2>
       {sortedNotes.length === 0 ? (
         <p className="rounded-lg bg-content px-3 py-2 text-sm text-muted">No notes yet</p>
       ) : (
         <nav aria-label="Note titles" className="min-h-0 flex-1 space-y-1 overflow-y-auto">
           {sortedNotes.map((note) => (
             <button
-              className="block w-full truncate rounded-lg px-3 py-2 text-left text-sm font-medium text-ink transition hover:bg-content focus:outline-none focus:ring-4 focus:ring-brand/10"
+              className="flex w-full items-center gap-2 truncate rounded-lg px-3 py-2 text-left text-sm font-medium text-ink transition hover:bg-content focus:outline-none focus:ring-4 focus:ring-brand/10"
               key={note.id ?? note._id}
               onClick={() => {
                 onSelectNote(note);
@@ -28,7 +26,8 @@ function NoteList({ notes, onSelectNote, onClose }) {
               title={note.title}
               type="button"
             >
-              {note.title}
+              <img alt="" aria-hidden="true" className="size-4 shrink-0" src={yourNotesIcon} />
+              <span className="min-w-0 flex-1 truncate">{note.title}</span>
             </button>
           ))}
         </nav>
@@ -76,7 +75,7 @@ function Sidebar({ notes, onSelectNote, mobileOpen, onClose }) {
           >
             <div className="mb-8 flex shrink-0 items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold tracking-tight text-ink">MY NOTES</h2>
+                <h2 className="text-lg font-bold tracking-tight text-ink">Your NOTES</h2>
               </div>
               <button
                 aria-label="Close notes menu"

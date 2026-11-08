@@ -22,4 +22,11 @@
   body {
     @apply bg-canvas font-sans text-ink antialiased;
   }
+
+  button:not(:disabled),
+  a[href],
+  summary,
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
 }

@@ -1,9 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import createIcon from "../assets/icons/create.svg";
+import deleteIcon from "../assets/icons/delete.svg";
+import editIcon from "../assets/icons/edit.svg";
 import { createNote, deleteNote, getNotes, logout, updateNote } from "../api/api.js";
 import ConfirmDialog from "../components/ConfirmDialog.jsx";
 import DashboardLayout from "../components/DashboardLayout.jsx";
 import EmptyState from "../components/EmptyState.jsx";
+import NoteDetail from "../components/NoteDetail.jsx";
+import NoteTimestamp from "../components/NoteTimestamp.jsx";
 import NoteEditor from "../components/NoteEditor.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
@@ -24,12 +29,10 @@ function Dashboard() {
   const [titleError, setTitleError] = useState("");
   const [contentError, setContentError] = useState("");
   const contentInputRef = useRef(null);
+  const [selectedNote, setSelectedNote] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
-  const [highlightedNoteId, setHighlightedNoteId] = useState(null);
-  const noteCardRefs = useRef(new Map());
-  const highlightTimeoutRef = useRef(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -56,22 +59,8 @@ function Dashboard() {
     };
   }, []);
 
-  useEffect(() => () => {
-    window.clearTimeout(highlightTimeoutRef.current);
-  }, []);
-
   function handleSelectNote(note) {
-    const noteId = note.id ?? note._id;
-    setHighlightedNoteId(noteId);
-    noteCardRefs.current.get(noteId)?.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
-
-    window.clearTimeout(highlightTimeoutRef.current);
-    highlightTimeoutRef.current = window.setTimeout(() => {
-      setHighlightedNoteId(null);
-    }, 2000);
+    setSelectedNote(note);
   }
 
   function resetEditor() {
@@ -96,6 +85,7 @@ function Dashboard() {
   }
 
   function openEditEditor(note) {
+    setSelectedNote(null);
     setTitle(note.title);
     setContent(note.content);
     setEditingNote(note);
@@ -218,10 +208,11 @@ function Dashboard() {
           <h2 className="text-2xl font-semibold tracking-tight text-ink sm:text-[28px]">My Notes</h2>
         </div>
         <button
-          className="w-full rounded-[10px] bg-brand px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand/90 focus:outline-none focus:ring-4 focus:ring-brand/20 sm:w-auto"
+          className="flex w-full items-center justify-center gap-2 rounded-[10px] bg-brand px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand/90 focus:outline-none focus:ring-4 focus:ring-brand/20 sm:w-auto"
           onClick={openEditor}
           type="button"
         >
+          <img alt="" aria-hidden="true" className="size-4 brightness-0 invert" src={createIcon} />
           Create new note
         </button>
       </div>
@@ -236,38 +227,39 @@ function Dashboard() {
         <section aria-label="Your notes" className="grid min-h-0 flex-1 auto-rows-min grid-cols-1 gap-3 overflow-y-auto pb-24 md:gap-4 md:pb-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {notes.map((note, index) => (
             <article
-              className={`flex min-h-28 flex-col rounded-2xl border border-line bg-paper p-3 shadow-[0_8px_28px_rgba(27,39,66,0.04)] transition-shadow md:min-h-56 md:p-5 ${highlightedNoteId === (note.id ?? note._id) ? "ring-4 ring-brand/30 shadow-[0_8px_28px_rgba(38,55,95,0.24)]" : ""}`}
+              className="flex min-h-28 flex-col rounded-2xl border border-line bg-paper p-3 shadow-[0_8px_28px_rgba(27,39,66,0.04)] transition duration-200 hover:-translate-y-1 hover:border-brand/30 hover:shadow-[0_12px_32px_rgba(27,39,66,0.12)] md:min-h-56 md:p-5"
               key={note.id ?? note._id ?? `${note.title}-${index}`}
-              ref={(element) => {
-                const noteId = note.id ?? note._id;
-                if (element) {
-                  noteCardRefs.current.set(noteId, element);
-                } else {
-                  noteCardRefs.current.delete(noteId);
-                }
-              }}
             >
-              <div className="min-w-0 flex-1">
+              <button
+                aria-label={`Open ${note.title}`}
+                className="min-w-0 flex-1 cursor-pointer rounded-lg text-left focus:outline-none focus-visible:ring-4 focus-visible:ring-brand/20"
+                onClick={() => handleSelectNote(note)}
+                type="button"
+              >
                 <h3 className="line-clamp-1 text-base font-semibold leading-6 text-ink md:line-clamp-2 md:text-lg">{note.title}</h3>
                 <p className="mt-1 line-clamp-2 whitespace-pre-wrap break-words text-sm leading-5 text-ink/75 md:mt-3 md:line-clamp-none md:leading-6">
                   {note.content}
                 </p>
-              </div>
+                <div className="mt-3">
+                  <NoteTimestamp note={note} />
+                </div>
+              </button>
               <div className="mt-2 flex self-end gap-2">
                 <button
                   aria-label={`Edit ${note.title}`}
-                  className="rounded-lg border border-white bg-paper px-3 py-1.5 text-xs font-semibold text-brand transition hover:bg-white/90 focus:outline-none focus:ring-4 focus:ring-white/50"
+                  className="flex items-center gap-1.5 rounded-lg border border-white bg-paper px-3 py-1.5 text-xs font-semibold text-brand transition hover:bg-white/90 focus:outline-none focus:ring-4 focus:ring-white/50"
                   onClick={(event) => {
                     event.stopPropagation();
                     openEditEditor(note);
                   }}
                   type="button"
                 >
+                  <img alt="" aria-hidden="true" className="size-4" src={editIcon} />
                   Edit
                 </button>
                 <button
                   aria-label={`Delete ${note.title}`}
-                  className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-200"
+                  className="flex items-center rounded-lg bg-white p-1.5 text-red-700 transition hover:bg-red-50 focus:outline-none focus:ring-4 focus:ring-red-200"
                   onClick={(event) => {
                     event.stopPropagation();
                     setDeleteError("");
@@ -275,7 +267,7 @@ function Dashboard() {
                   }}
                   type="button"
                 >
-                  Delete
+                  <img alt="" aria-hidden="true" className="size-4" src={deleteIcon} />
                 </button>
               </div>
             </article>
@@ -284,10 +276,11 @@ function Dashboard() {
       )}
 
       <button
-        className="fixed bottom-6 left-1/2 z-20 w-44 -translate-x-1/2 rounded-[10px] bg-brand px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_28px_rgba(27,39,66,0.18)] transition hover:bg-brand/90 focus:outline-none focus:ring-4 focus:ring-brand/20 md:hidden"
+        className="fixed bottom-6 left-1/2 z-20 flex w-44 -translate-x-1/2 items-center justify-center gap-2 rounded-[10px] bg-brand px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_28px_rgba(27,39,66,0.18)] transition hover:bg-brand/90 focus:outline-none focus:ring-4 focus:ring-brand/20 md:hidden"
         onClick={openEditor}
         type="button"
       >
+        <img alt="" aria-hidden="true" className="size-4 brightness-0 invert" src={createIcon} />
         Add Note
       </button>
 
@@ -312,6 +305,14 @@ function Dashboard() {
           saving={saving}
           title={title}
           titleError={titleError}
+        />
+      )}
+
+      {selectedNote && (
+        <NoteDetail
+          note={selectedNote}
+          onClose={() => setSelectedNote(null)}
+          onEdit={openEditEditor}
         />
       )}
 

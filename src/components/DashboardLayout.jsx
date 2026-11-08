@@ -1,4 +1,6 @@
 import { useRef, useState } from 'react';
+import logoutIcon from '../assets/icons/logout.svg';
+import userIcon from '../assets/icons/user.svg';
 import Sidebar from './Sidebar.jsx';
 
 function DashboardLayout({
@@ -43,13 +45,17 @@ function DashboardLayout({
             <h1 className="text-2xl font-semibold tracking-tight text-ink">My notes</h1>
           </div>
           <div className="ml-auto flex items-center gap-3 sm:gap-5">
-            <span className="hidden max-w-48 truncate text-sm font-medium text-ink sm:block">{userEmail}</span>
+            <span className="hidden max-w-48 items-center gap-2 truncate text-sm font-medium text-ink sm:flex">
+              <img alt="" aria-hidden="true" className="size-4 shrink-0" src={userIcon} />
+              <span className="truncate">{userEmail}</span>
+            </span>
             <button
-              className="hidden rounded-lg border border-line px-4 py-2 text-sm font-semibold text-brand transition hover:border-brand hover:bg-content focus:outline-none focus:ring-4 focus:ring-brand/10 disabled:cursor-not-allowed disabled:opacity-60 md:block"
+              className="hidden items-center gap-2 rounded-lg border border-line px-4 py-2 text-sm font-semibold text-red-700 transition hover:border-red-200 hover:bg-red-50 focus:outline-none focus:ring-4 focus:ring-red-100 disabled:cursor-not-allowed disabled:opacity-60 md:flex"
               disabled={loading}
               onClick={onLogout}
               type="button"
             >
+              <img alt="" aria-hidden="true" className="size-4" src={logoutIcon} />
               {loading ? 'Logging out...' : 'Log out'}
             </button>
             <div className="relative md:hidden">
@@ -67,14 +73,18 @@ function DashboardLayout({
                   className="absolute right-0 top-full z-30 mt-2 w-52 rounded-xl border border-line bg-paper p-3 shadow-[0_8px_28px_rgba(27,39,66,0.12)]"
                   role="menu"
                 >
-                  <p className="truncate px-2 py-2 text-xs text-muted">{userEmail}</p>
+                  <p className="flex items-center gap-2 truncate px-2 py-2 text-xs text-muted">
+                    <img alt="" aria-hidden="true" className="size-4 shrink-0" src={userIcon} />
+                    <span className="truncate">{userEmail}</span>
+                  </p>
                   <button
-                    className="w-full rounded-lg px-2 py-2 text-left text-sm font-semibold text-brand transition hover:bg-content focus:outline-none focus:ring-4 focus:ring-brand/10 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm font-semibold text-red-700 transition hover:bg-red-50 focus:outline-none focus:ring-4 focus:ring-red-100 disabled:cursor-not-allowed disabled:opacity-60"
                     disabled={loading}
                     onClick={onLogout}
                     role="menuitem"
                     type="button"
                   >
+                    <img alt="" aria-hidden="true" className="size-4" src={logoutIcon} />
                     {loading ? 'Logging out...' : 'Log out'}
                   </button>
                 </div>
