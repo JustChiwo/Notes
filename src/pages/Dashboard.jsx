@@ -189,27 +189,27 @@ function Dashboard() {
         <section aria-label="Your notes" className="grid min-h-0 flex-1 auto-rows-min grid-cols-1 gap-3 overflow-y-auto pb-24 md:gap-4 md:pb-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {notes.map((note, index) => (
             <article
-              className={`flex min-h-24 items-center gap-3 rounded-2xl border border-line bg-paper p-3 shadow-[0_8px_28px_rgba(27,39,66,0.04)] md:block md:min-h-56 md:rounded-2xl md:border-transparent md:p-5 ${noteColors[index % noteColors.length]}`}
+              className={`flex min-h-28 flex-col rounded-2xl border border-line bg-paper p-3 shadow-[0_8px_28px_rgba(27,39,66,0.04)] md:min-h-56 md:border-transparent md:p-5 ${noteColors[index % noteColors.length]}`}
               key={note.id ?? note._id ?? `${note.title}-${index}`}
             >
-              <div className="min-w-0 flex-1 md:block">
+              <div className="min-w-0 flex-1">
                 <h3 className="line-clamp-1 text-base font-semibold leading-6 text-ink md:line-clamp-2 md:text-lg">{note.title}</h3>
                 <p className="mt-1 line-clamp-2 whitespace-pre-wrap break-words text-sm leading-5 text-ink/75 md:mt-3 md:line-clamp-none md:leading-6">
                   {note.content}
                 </p>
-                <button
-                  aria-label={`Delete ${note.title}`}
-                  className="mt-3 rounded-lg border border-ink/15 px-3 py-1.5 text-xs font-semibold text-ink/75 transition hover:border-ink/40 hover:bg-white/40 focus:outline-none focus:ring-4 focus:ring-brand/10 md:mt-4"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    setDeleteError("");
-                    setDeleteTarget(note);
-                  }}
-                  type="button"
-                >
-                  Delete
-                </button>
               </div>
+              <button
+                aria-label={`Delete ${note.title}`}
+                className="mt-2 self-end rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-200"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setDeleteError("");
+                  setDeleteTarget(note);
+                }}
+                type="button"
+              >
+                Delete
+              </button>
             </article>
           ))}
         </section>
