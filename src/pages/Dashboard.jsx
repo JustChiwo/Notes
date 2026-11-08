@@ -1,15 +1,110 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { logout } from "../api/api.js";
+import { createNote, getNotes, logout } from "../api/api.js";
+import ConfirmDialog from "../components/ConfirmDialog.jsx";
 import DashboardLayout from "../components/DashboardLayout.jsx";
 import EmptyState from "../components/EmptyState.jsx";
+import NoteEditor from "../components/NoteEditor.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+
+const noteColors = [
+  "bg-note-yellow",
+  "bg-note-pink",
+  "bg-note-blue",
+];
 
 function Dashboard() {
   const navigate = useNavigate();
   const { user, clearUser } = useAuth();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [notes, setNotes] = useState([]);
+  const [notesLoading, setNotesLoading] = useState(true);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [discardConfirmationOpen, setDiscardConfirmationOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [editorError, setEditorError] = useState("");
+  const [titleError, setTitleError] = useState("");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    getNotes()
+      .then((result) => {
+        if (isMounted) {
+          setNotes(result);
+        }
+      })
+      .catch((requestError) => {
+        if (isMounted) {
+          setError(requestError.message);
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setNotesLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  function resetEditor() {
+    setTitle("");
+    setContent("");
+    setEditorError("");
+    setTitleError("");
+    setDiscardConfirmationOpen(false);
+    setEditorOpen(false);
+  }
+
+  function openEditor() {
+    setTitle("");
+    setContent("");
+    setEditorError("");
+    setTitleError("");
+    setEditorOpen(true);
+  }
+
+  function requestEditorClose() {
+    if (saving) {
+      return;
+    }
+
+    // Keep typed text until the user confirms they want to discard it.
+    if (title.trim() || content.trim()) {
+      setDiscardConfirmationOpen(true);
+    } else {
+      resetEditor();
+    }
+  }
+
+  async function handleSave(event) {
+    event.preventDefault();
+    setEditorError("");
+
+    if (!title.trim()) {
+      setTitleError("Please enter a title.");
+      return;
+    }
+
+    setTitleError("");
+    setSaving(true);
+
+    try {
+      const newNote = await createNote(title.trim(), content);
+      setNotes((currentNotes) => [newNote, ...currentNotes]);
+      resetEditor();
+    } catch (requestError) {
+      setEditorError(requestError.message);
+    } finally {
+      setSaving(false);
+    }
+  }
 
   async function handleLogout() {
     setError("");
@@ -33,14 +128,68 @@ function Dashboard() {
       onLogout={handleLogout}
       userEmail={user.email}
     >
-      <div className="mb-7 flex flex-wrap items-end justify-between gap-3">
+      <div className="mb-5 flex shrink-0 flex-col gap-4 sm:mb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="mb-1 text-xs font-medium uppercase tracking-[0.16em] text-muted">Your workspace</p>
           <h2 className="text-2xl font-semibold tracking-tight text-ink sm:text-[28px]">My Notes</h2>
         </div>
-        <span className="text-sm text-muted">Welcome, {user.email}</span>
+        <button
+          className="w-full rounded-[10px] bg-brand px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand/90 focus:outline-none focus:ring-4 focus:ring-brand/20 sm:w-auto"
+          onClick={openEditor}
+          type="button"
+        >
+          Create new note
+        </button>
       </div>
-      <EmptyState />
+
+      {notesLoading ? (
+        <section className="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-white bg-paper px-6 py-12 text-center text-sm text-muted shadow-[0_8px_28px_rgba(27,39,66,0.04)]">
+          Loading notes...
+        </section>
+      ) : notes.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <section aria-label="Your notes" className="grid min-h-0 flex-1 auto-rows-min grid-cols-1 gap-4 overflow-y-auto pb-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+          {notes.map((note, index) => (
+            <article
+              className={`min-h-56 rounded-2xl p-5 shadow-[0_8px_28px_rgba(27,39,66,0.04)] ${noteColors[index % noteColors.length]}`}
+              key={note.id ?? note._id ?? `${note.title}-${index}`}
+            >
+              <h3 className="line-clamp-2 text-lg font-semibold leading-6 text-ink">{note.title}</h3>
+              <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-ink/75">
+                {note.content}
+              </p>
+            </article>
+          ))}
+        </section>
+      )}
+
+      {editorOpen && (
+        <NoteEditor
+          content={content}
+          error={editorError}
+          onContentChange={setContent}
+          onDiscard={requestEditorClose}
+          onRequestClose={requestEditorClose}
+          onSave={handleSave}
+          onTitleChange={(nextTitle) => {
+            setTitle(nextTitle);
+            if (nextTitle.trim()) {
+              setTitleError("");
+            }
+          }}
+          saving={saving}
+          title={title}
+          titleError={titleError}
+        />
+      )}
+
+      {discardConfirmationOpen && (
+        <ConfirmDialog
+          onDiscard={resetEditor}
+          onKeepEditing={() => setDiscardConfirmationOpen(false)}
+        />
+      )}
     </DashboardLayout>
   );
 }

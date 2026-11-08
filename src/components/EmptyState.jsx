@@ -1,6 +1,6 @@
 function EmptyState() {
   return (
-    <section className="flex min-h-72 flex-col items-center justify-center rounded-2xl border border-white bg-paper px-6 py-12 text-center shadow-[0_8px_28px_rgba(27,39,66,0.04)] sm:min-h-96">
+    <section className="flex min-h-72 flex-1 flex-col items-center justify-center rounded-2xl border border-white bg-paper px-6 py-12 text-center shadow-[0_8px_28px_rgba(27,39,66,0.04)]">
       <div aria-hidden="true" className="mb-6 flex items-center gap-2">
         <span className="size-3 rounded-full bg-note-yellow" />
         <span className="size-3 rounded-full bg-note-pink" />

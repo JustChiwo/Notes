@@ -3,9 +3,9 @@ import Sidebar from './Sidebar.jsx';
 
 function DashboardLayout({ userEmail, loading, onLogout, error, children }) {
   return (
-    <main className="min-h-screen bg-canvas p-3 font-sans text-ink sm:p-6 lg:p-10">
-      <section className="mx-auto flex min-h-[calc(100vh-1.5rem)] max-w-[1440px] flex-col overflow-hidden rounded-xl border border-white bg-paper shadow-[0_24px_70px_rgba(27,39,66,0.10)] sm:min-h-[calc(100vh-3rem)] lg:min-h-[calc(100vh-5rem)]">
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line px-5 py-5 sm:px-8 lg:px-10">
+    <main className="h-screen min-h-screen overflow-hidden bg-canvas font-sans text-ink">
+      <section className="flex h-full min-h-0 w-full flex-col overflow-hidden bg-paper">
+        <header className="flex shrink-0 flex-wrap items-center justify-between gap-4 border-b border-line px-5 py-4 sm:px-8 lg:px-10">
           <div className="flex items-center gap-8 sm:gap-12">
             <Logo />
             <h1 className="text-xl font-bold tracking-tight text-ink sm:text-2xl">MY NOTES</h1>
@@ -23,11 +23,11 @@ function DashboardLayout({ userEmail, loading, onLogout, error, children }) {
           </div>
         </header>
 
-        <div className="flex flex-1 flex-col md:flex-row">
+        <div className="flex min-h-0 flex-1 flex-col md:flex-row">
           <Sidebar />
 
-          <div className="flex-1 bg-content px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
-            <div className="mx-auto max-w-5xl">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-content px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col">
               {error && (
                 <p className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700" role="alert">
                   {error}
