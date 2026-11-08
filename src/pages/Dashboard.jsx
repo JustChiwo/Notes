@@ -224,27 +224,28 @@ function Dashboard() {
       ) : notes.length === 0 ? (
         <EmptyState />
       ) : (
-        <section aria-label="Your notes" className="grid min-h-0 flex-1 auto-rows-min grid-cols-1 gap-3 overflow-y-auto pb-24 md:gap-4 md:pb-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+        <section aria-label="Your notes" className="grid min-h-0 min-w-0 flex-1 auto-rows-min grid-cols-1 gap-3 overflow-y-auto pb-24 md:gap-4 md:pb-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {notes.map((note, index) => (
             <article
-              className="flex min-h-28 flex-col rounded-2xl border border-line bg-paper p-3 shadow-[0_8px_28px_rgba(27,39,66,0.04)] transition duration-200 hover:-translate-y-1 hover:border-brand/30 hover:shadow-[0_12px_32px_rgba(27,39,66,0.12)] md:min-h-56 md:p-5"
+              className="flex h-40 min-w-0 shrink-0 flex-col overflow-hidden rounded-2xl border border-line bg-paper p-3 shadow-[0_8px_28px_rgba(27,39,66,0.04)] transition duration-200 hover:-translate-y-1 hover:border-brand/30 hover:shadow-[0_12px_32px_rgba(27,39,66,0.12)] md:h-56 md:p-5"
               key={note.id ?? note._id ?? `${note.title}-${index}`}
             >
+              {/* Fixed heights keep long notes from changing the grid layout. */}
               <button
                 aria-label={`Open ${note.title}`}
-                className="min-w-0 flex-1 cursor-pointer rounded-lg text-left focus:outline-none focus-visible:ring-4 focus-visible:ring-brand/20"
+                className="flex min-h-0 min-w-0 flex-1 cursor-pointer flex-col overflow-hidden rounded-lg text-left focus:outline-none focus-visible:ring-4 focus-visible:ring-brand/20"
                 onClick={() => handleSelectNote(note)}
                 type="button"
               >
-                <h3 className="line-clamp-1 text-base font-semibold leading-6 text-ink md:line-clamp-2 md:text-lg">{note.title}</h3>
-                <p className="mt-1 line-clamp-2 whitespace-pre-wrap break-words text-sm leading-5 text-ink/75 md:mt-3 md:line-clamp-none md:leading-6">
+                <h3 className="w-full shrink-0 truncate text-base font-semibold leading-6 text-ink md:text-lg">{note.title}</h3>
+                <p className="mt-1 min-h-0 min-w-0 flex-1 overflow-hidden whitespace-pre-wrap break-words text-sm leading-5 text-ink/75 line-clamp-2 md:mt-3 md:leading-6 md:line-clamp-3">
                   {note.content}
                 </p>
-                <div className="mt-3">
+                <div className="mt-3 shrink-0">
                   <NoteTimestamp note={note} />
                 </div>
               </button>
-              <div className="mt-2 flex self-end gap-2">
+              <div className="mt-2 flex shrink-0 self-end gap-2">
                 <button
                   aria-label={`Edit ${note.title}`}
                   className="flex items-center gap-1.5 rounded-lg border border-white bg-paper px-3 py-1.5 text-xs font-semibold text-brand transition hover:bg-white/90 focus:outline-none focus:ring-4 focus:ring-white/50"
