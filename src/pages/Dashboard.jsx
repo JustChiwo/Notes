@@ -238,38 +238,38 @@ function Dashboard() {
                 type="button"
               >
                 <h3 className="w-full shrink-0 truncate text-base font-semibold leading-6 text-ink md:text-lg">{note.title}</h3>
-                <p className="mt-1 min-h-0 min-w-0 flex-1 overflow-hidden whitespace-pre-wrap break-words text-sm leading-5 text-ink/75 line-clamp-2 md:mt-3 md:leading-6 md:line-clamp-3">
+                <p className="mt-1 min-h-0 min-w-0 flex-none overflow-hidden whitespace-pre-wrap break-words text-sm leading-5 text-ink/75 line-clamp-2 md:mt-3 md:leading-6 md:line-clamp-3">
                   {note.content}
                 </p>
-                <div className="mt-3 shrink-0">
-                  <NoteTimestamp note={note} />
-                </div>
               </button>
-              <div className="mt-2 flex shrink-0 self-end gap-2">
-                <button
-                  aria-label={`Edit ${note.title}`}
-                  className="flex items-center gap-1.5 rounded-lg border border-white bg-paper px-3 py-1.5 text-xs font-semibold text-brand transition hover:bg-white/90 focus:outline-none focus:ring-4 focus:ring-white/50"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    openEditEditor(note);
-                  }}
-                  type="button"
-                >
-                  <img alt="" aria-hidden="true" className="size-4" src={editIcon} />
-                  Edit
-                </button>
-                <button
-                  aria-label={`Delete ${note.title}`}
-                  className="flex items-center rounded-lg bg-white p-1.5 text-red-700 transition hover:bg-red-50 focus:outline-none focus:ring-4 focus:ring-red-200"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    setDeleteError("");
-                    setDeleteTarget(note);
-                  }}
-                  type="button"
-                >
-                  <img alt="" aria-hidden="true" className="size-4" src={deleteIcon} />
-                </button>
+              <div className="mt-2 flex w-full shrink-0 items-center justify-between gap-2">
+                <NoteTimestamp note={note} />
+                <div className="flex shrink-0 gap-2">
+                  <button
+                    aria-label={`Edit ${note.title}`}
+                    className="flex items-center gap-1.5 rounded-lg border border-white bg-paper px-3 py-1.5 text-xs font-semibold text-brand transition hover:bg-white/90 focus:outline-none focus:ring-4 focus:ring-white/50"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      openEditEditor(note);
+                    }}
+                    type="button"
+                  >
+                    <img alt="" aria-hidden="true" className="size-4" src={editIcon} />
+                    Edit
+                  </button>
+                  <button
+                    aria-label={`Delete ${note.title}`}
+                    className="flex items-center rounded-lg bg-white p-1.5 text-red-700 transition hover:bg-red-50 focus:outline-none focus:ring-4 focus:ring-red-200"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setDeleteError("");
+                      setDeleteTarget(note);
+                    }}
+                    type="button"
+                  >
+                    <img alt="" aria-hidden="true" className="size-4" src={deleteIcon} />
+                  </button>
+                </div>
               </div>
             </article>
           ))}
