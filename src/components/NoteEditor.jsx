@@ -9,6 +9,8 @@ function NoteEditor({
   saving,
   error,
   titleError,
+  contentError,
+  contentRef,
 }) {
   function handleBackdropClick(event) {
     if (event.target === event.currentTarget) {
@@ -61,9 +63,12 @@ function NoteEditor({
             <textarea
               className="min-h-48 w-full resize-y rounded-[10px] border border-line bg-white px-4 py-3 text-sm leading-6 text-ink outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/10"
               id="note-content"
+              aria-invalid={Boolean(contentError)}
               onChange={(event) => onContentChange(event.target.value)}
+              ref={contentRef}
               value={content}
             />
+            {contentError && <p className="mt-2 text-sm font-medium text-red-600" role="alert">{contentError}</p>}
           </div>
 
           {error && <p className="text-sm font-medium text-red-600" role="alert">{error}</p>}

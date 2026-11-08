@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createNote, getNotes, logout } from "../api/api.js";
 import ConfirmDialog from "../components/ConfirmDialog.jsx";
@@ -27,6 +27,8 @@ function Dashboard() {
   const [saving, setSaving] = useState(false);
   const [editorError, setEditorError] = useState("");
   const [titleError, setTitleError] = useState("");
+  const [contentError, setContentError] = useState("");
+  const contentInputRef = useRef(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -58,6 +60,7 @@ function Dashboard() {
     setContent("");
     setEditorError("");
     setTitleError("");
+    setContentError("");
     setDiscardConfirmationOpen(false);
     setEditorOpen(false);
   }
@@ -67,6 +70,7 @@ function Dashboard() {
     setContent("");
     setEditorError("");
     setTitleError("");
+    setContentError("");
     setEditorOpen(true);
   }
 
@@ -87,16 +91,25 @@ function Dashboard() {
     event.preventDefault();
     setEditorError("");
 
-    if (!title.trim()) {
-      setTitleError("Please enter a title.");
+    // Validate both fields before sending the note.
+    const trimmedTitle = title.trim();
+    const trimmedContent = content.trim();
+    const hasTitleError = !trimmedTitle;
+    const hasContentError = !trimmedContent;
+    setTitleError(hasTitleError ? "Please enter a title." : "");
+    setContentError(hasContentError ? "Content can't be empty." : "");
+
+    if (hasTitleError || hasContentError) {
+      if (hasContentError) {
+        contentInputRef.current?.focus();
+      }
       return;
     }
 
-    setTitleError("");
     setSaving(true);
 
     try {
-      const newNote = await createNote(title.trim(), content);
+      const newNote = await createNote(trimmedTitle, trimmedContent);
       setNotes((currentNotes) => [newNote, ...currentNotes]);
       resetEditor();
     } catch (requestError) {
@@ -167,16 +180,19 @@ function Dashboard() {
       {editorOpen && (
         <NoteEditor
           content={content}
+          contentError={contentError}
+          contentRef={contentInputRef}
           error={editorError}
-          onContentChange={setContent}
+          onContentChange={(nextContent) => {
+            setContent(nextContent);
+            setContentError("");
+          }}
           onDiscard={requestEditorClose}
           onRequestClose={requestEditorClose}
           onSave={handleSave}
           onTitleChange={(nextTitle) => {
             setTitle(nextTitle);
-            if (nextTitle.trim()) {
-              setTitleError("");
-            }
+            setTitleError("");
           }}
           saving={saving}
           title={title}
