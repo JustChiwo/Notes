@@ -1,9 +1,24 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Logo from './Logo.jsx';
 import Sidebar from './Sidebar.jsx';
 
-function DashboardLayout({ userEmail, loading, onLogout, error, children }) {
+function DashboardLayout({
+  userEmail,
+  loading,
+  onLogout,
+  error,
+  children,
+  notes,
+  onSelectNote,
+}) {
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const mobileMenuButtonRef = useRef(null);
+
+  function closeSidebar() {
+    setSidebarOpen(false);
+    mobileMenuButtonRef.current?.focus();
+  }
 
   return (
     <main className="h-screen min-h-screen overflow-hidden bg-canvas font-sans text-ink">
@@ -13,7 +28,22 @@ function DashboardLayout({ userEmail, loading, onLogout, error, children }) {
             <Logo />
             <h1 className="text-xl font-bold tracking-tight text-ink sm:text-2xl">MY NOTES</h1>
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-ink md:hidden">My notes</h1>
+          <div className="flex items-center gap-3 md:hidden">
+            <button
+              aria-expanded={sidebarOpen}
+              aria-label="Open notes menu"
+              aria-controls="mobile-notes-menu"
+              className="rounded-lg border border-line p-2 text-brand transition hover:bg-content focus:outline-none focus:ring-4 focus:ring-brand/10"
+              ref={mobileMenuButtonRef}
+              onClick={() => setSidebarOpen(true)}
+              type="button"
+            >
+              <svg aria-hidden="true" className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <h1 className="text-2xl font-semibold tracking-tight text-ink">My notes</h1>
+          </div>
           <div className="ml-auto flex items-center gap-3 sm:gap-5">
             <span className="hidden max-w-48 truncate text-sm font-medium text-ink sm:block">{userEmail}</span>
             <button
@@ -55,8 +85,13 @@ function DashboardLayout({ userEmail, loading, onLogout, error, children }) {
           </div>
         </header>
 
-        <div className="flex min-h-0 flex-1 flex-col md:flex-row">
-          <Sidebar />
+        <div className="relative flex min-h-0 flex-1 flex-col md:flex-row">
+          <Sidebar
+            mobileOpen={sidebarOpen}
+            notes={notes}
+            onClose={closeSidebar}
+            onSelectNote={onSelectNote}
+          />
 
           <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-content px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
             <div className="flex min-h-0 min-w-0 flex-1 flex-col">

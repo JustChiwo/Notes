@@ -27,6 +27,9 @@ function Dashboard() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  const [highlightedNoteId, setHighlightedNoteId] = useState(null);
+  const noteCardRefs = useRef(new Map());
+  const highlightTimeoutRef = useRef(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -52,6 +55,24 @@ function Dashboard() {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => () => {
+    window.clearTimeout(highlightTimeoutRef.current);
+  }, []);
+
+  function handleSelectNote(note) {
+    const noteId = note.id ?? note._id;
+    setHighlightedNoteId(noteId);
+    noteCardRefs.current.get(noteId)?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+
+    window.clearTimeout(highlightTimeoutRef.current);
+    highlightTimeoutRef.current = window.setTimeout(() => {
+      setHighlightedNoteId(null);
+    }, 2000);
+  }
 
   function resetEditor() {
     setTitle("");
@@ -186,7 +207,9 @@ function Dashboard() {
     <DashboardLayout
       error={error}
       loading={loading}
+      notes={notes}
       onLogout={handleLogout}
+      onSelectNote={handleSelectNote}
       userEmail={user.email}
     >
       <div className="mb-5 hidden shrink-0 flex-col gap-4 sm:mb-6 sm:flex-row sm:items-end sm:justify-between md:flex">
@@ -213,8 +236,16 @@ function Dashboard() {
         <section aria-label="Your notes" className="grid min-h-0 flex-1 auto-rows-min grid-cols-1 gap-3 overflow-y-auto pb-24 md:gap-4 md:pb-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {notes.map((note, index) => (
             <article
-              className="flex min-h-28 flex-col rounded-2xl border border-line bg-paper p-3 shadow-[0_8px_28px_rgba(27,39,66,0.04)] md:min-h-56 md:p-5"
+              className={`flex min-h-28 flex-col rounded-2xl border border-line bg-paper p-3 shadow-[0_8px_28px_rgba(27,39,66,0.04)] transition-shadow md:min-h-56 md:p-5 ${highlightedNoteId === (note.id ?? note._id) ? "ring-4 ring-brand/30 shadow-[0_8px_28px_rgba(38,55,95,0.24)]" : ""}`}
               key={note.id ?? note._id ?? `${note.title}-${index}`}
+              ref={(element) => {
+                const noteId = note.id ?? note._id;
+                if (element) {
+                  noteCardRefs.current.set(noteId, element);
+                } else {
+                  noteCardRefs.current.delete(noteId);
+                }
+              }}
             >
               <div className="min-w-0 flex-1">
                 <h3 className="line-clamp-1 text-base font-semibold leading-6 text-ink md:line-clamp-2 md:text-lg">{note.title}</h3>
