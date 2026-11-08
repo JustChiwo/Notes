@@ -7,12 +7,6 @@ import EmptyState from "../components/EmptyState.jsx";
 import NoteEditor from "../components/NoteEditor.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
-const noteColors = [
-  "md:bg-note-yellow",
-  "md:bg-note-pink",
-  "md:bg-note-blue",
-];
-
 function Dashboard() {
   const navigate = useNavigate();
   const { user, clearUser } = useAuth();
@@ -219,7 +213,7 @@ function Dashboard() {
         <section aria-label="Your notes" className="grid min-h-0 flex-1 auto-rows-min grid-cols-1 gap-3 overflow-y-auto pb-24 md:gap-4 md:pb-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {notes.map((note, index) => (
             <article
-              className={`flex min-h-28 flex-col rounded-2xl border border-line bg-paper p-3 shadow-[0_8px_28px_rgba(27,39,66,0.04)] md:min-h-56 md:border-transparent md:p-5 ${noteColors[index % noteColors.length]}`}
+              className="flex min-h-28 flex-col rounded-2xl border border-line bg-paper p-3 shadow-[0_8px_28px_rgba(27,39,66,0.04)] md:min-h-56 md:p-5"
               key={note.id ?? note._id ?? `${note.title}-${index}`}
             >
               <div className="min-w-0 flex-1">
@@ -231,7 +225,7 @@ function Dashboard() {
               <div className="mt-2 flex self-end gap-2">
                 <button
                   aria-label={`Edit ${note.title}`}
-                  className="rounded-lg border border-line px-3 py-1.5 text-xs font-semibold text-brand transition hover:border-brand hover:bg-white/40 focus:outline-none focus:ring-4 focus:ring-brand/10"
+                  className="rounded-lg border border-white bg-paper px-3 py-1.5 text-xs font-semibold text-brand transition hover:bg-white/90 focus:outline-none focus:ring-4 focus:ring-white/50"
                   onClick={(event) => {
                     event.stopPropagation();
                     openEditEditor(note);
