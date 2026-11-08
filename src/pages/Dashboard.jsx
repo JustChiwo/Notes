@@ -19,6 +19,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [notes, setNotes] = useState([]);
   const [notesLoading, setNotesLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [editorOpen, setEditorOpen] = useState(false);
   const [discardConfirmationOpen, setDiscardConfirmationOpen] = useState(false);
   const [title, setTitle] = useState("");
@@ -33,6 +34,12 @@ function Dashboard() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  const normalizedSearchQuery = searchQuery.trim().toLocaleLowerCase();
+  const filteredNotes = normalizedSearchQuery
+    ? notes.filter((note) => (
+      `${note.title ?? ""}\n${note.content ?? ""}`.toLocaleLowerCase().includes(normalizedSearchQuery)
+    ))
+    : notes;
 
   useEffect(() => {
     let isMounted = true;
@@ -224,56 +231,74 @@ function Dashboard() {
       ) : notes.length === 0 ? (
         <EmptyState />
       ) : (
-        <section aria-label="Your notes" className="grid min-h-0 min-w-0 flex-1 auto-rows-min grid-cols-1 gap-3 overflow-y-auto pb-24 md:gap-4 md:pb-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-          {notes.map((note, index) => (
-            <article
-              className="flex h-40 min-w-0 shrink-0 flex-col overflow-hidden rounded-2xl border border-line bg-paper p-3 shadow-[0_8px_28px_rgba(27,39,66,0.04)] transition duration-200 hover:-translate-y-1 hover:border-brand/30 hover:shadow-[0_12px_32px_rgba(27,39,66,0.12)] md:h-56 md:p-5"
-              key={note.id ?? note._id ?? `${note.title}-${index}`}
-            >
-              {/* Fixed heights keep long notes from changing the grid layout. */}
-              <button
-                aria-label={`Open ${note.title}`}
-                className="flex min-h-0 min-w-0 flex-1 cursor-pointer flex-col overflow-hidden rounded-lg text-left focus:outline-none focus-visible:ring-4 focus-visible:ring-brand/20"
-                onClick={() => handleSelectNote(note)}
-                type="button"
-              >
-                <h3 className="w-full shrink-0 truncate text-base font-semibold leading-6 text-ink md:text-lg">{note.title}</h3>
-                <p className="mt-1 min-h-0 min-w-0 flex-none overflow-hidden whitespace-pre-wrap break-words text-sm leading-5 text-ink/75 line-clamp-2 md:mt-3 md:leading-6 md:line-clamp-3">
-                  {note.content}
-                </p>
-              </button>
-              <div className="mt-2 flex w-full shrink-0 items-center justify-between gap-2">
-                <NoteTimestamp note={note} />
-                <div className="flex shrink-0 gap-2">
+        <>
+          <label className="mb-4 block w-full shrink-0">
+            <span className="sr-only">Search notes by title or content</span>
+            <input
+              className="w-full rounded-[10px] border border-line bg-paper px-4 py-3 text-sm text-ink outline-none transition placeholder:text-muted focus:border-brand focus:ring-4 focus:ring-brand/10"
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search notes by title or content..."
+              type="search"
+              value={searchQuery}
+            />
+          </label>
+          {filteredNotes.length === 0 ? (
+            <section className="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-white bg-paper px-6 py-12 text-center text-sm text-muted shadow-[0_8px_28px_rgba(27,39,66,0.04)]">
+              No notes match: {searchQuery.trim()}
+            </section>
+          ) : (
+            <section aria-label="Your notes" className="grid min-h-0 min-w-0 flex-1 auto-rows-min grid-cols-1 gap-3 overflow-y-auto pb-24 md:gap-4 md:pb-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+              {filteredNotes.map((note, index) => (
+                <article
+                  className="flex h-40 min-w-0 shrink-0 flex-col overflow-hidden rounded-2xl border border-line bg-paper p-3 shadow-[0_8px_28px_rgba(27,39,66,0.04)] transition duration-200 hover:-translate-y-1 hover:border-brand/30 hover:shadow-[0_12px_32px_rgba(27,39,66,0.12)] md:h-56 md:p-5"
+                  key={note.id ?? note._id ?? `${note.title}-${index}`}
+                >
+                  {/* Fixed heights keep long notes from changing the grid layout. */}
                   <button
-                    aria-label={`Edit ${note.title}`}
-                    className="flex items-center gap-1.5 rounded-lg border border-white bg-paper px-3 py-1.5 text-xs font-semibold text-brand transition hover:bg-white/90 focus:outline-none focus:ring-4 focus:ring-white/50"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      openEditEditor(note);
-                    }}
+                    aria-label={`Open ${note.title}`}
+                    className="flex min-h-0 min-w-0 flex-1 cursor-pointer flex-col overflow-hidden rounded-lg text-left focus:outline-none focus-visible:ring-4 focus-visible:ring-brand/20"
+                    onClick={() => handleSelectNote(note)}
                     type="button"
                   >
-                    <img alt="" aria-hidden="true" className="size-4" src={editIcon} />
-                    Edit
+                    <h3 className="w-full shrink-0 truncate text-base font-semibold leading-6 text-ink md:text-lg">{note.title}</h3>
+                    <p className="mt-1 min-h-0 min-w-0 flex-none overflow-hidden whitespace-pre-wrap break-words text-sm leading-5 text-ink/75 line-clamp-2 md:mt-3 md:leading-6 md:line-clamp-3">
+                      {note.content}
+                    </p>
                   </button>
-                  <button
-                    aria-label={`Delete ${note.title}`}
-                    className="flex items-center rounded-lg bg-white p-1.5 text-red-700 transition hover:bg-red-50 focus:outline-none focus:ring-4 focus:ring-red-200"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setDeleteError("");
-                      setDeleteTarget(note);
-                    }}
-                    type="button"
-                  >
-                    <img alt="" aria-hidden="true" className="size-4" src={deleteIcon} />
-                  </button>
-                </div>
-              </div>
-            </article>
-          ))}
-        </section>
+                  <div className="mt-2 flex w-full shrink-0 items-center justify-between gap-2">
+                    <NoteTimestamp note={note} />
+                    <div className="flex shrink-0 gap-2">
+                      <button
+                        aria-label={`Edit ${note.title}`}
+                        className="flex items-center gap-1.5 rounded-lg border border-white bg-paper px-3 py-1.5 text-xs font-semibold text-brand transition hover:bg-white/90 focus:outline-none focus:ring-4 focus:ring-white/50"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          openEditEditor(note);
+                        }}
+                        type="button"
+                      >
+                        <img alt="" aria-hidden="true" className="size-4" src={editIcon} />
+                        Edit
+                      </button>
+                      <button
+                        aria-label={`Delete ${note.title}`}
+                        className="flex items-center rounded-lg bg-white p-1.5 text-red-700 transition hover:bg-red-50 focus:outline-none focus:ring-4 focus:ring-red-200"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setDeleteError("");
+                          setDeleteTarget(note);
+                        }}
+                        type="button"
+                      >
+                        <img alt="" aria-hidden="true" className="size-4" src={deleteIcon} />
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </section>
+          )}
+        </>
       )}
 
       <button
