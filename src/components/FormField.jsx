@@ -3,6 +3,7 @@ function FormField({
   label,
   autoComplete,
   onChange,
+  placeholder,
   required,
   type,
   value,
@@ -17,6 +18,7 @@ function FormField({
         className="w-full rounded-[10px] border border-line bg-white px-4 py-3 text-sm text-ink outline-none transition placeholder:text-muted focus:border-brand focus:ring-4 focus:ring-brand/10"
         id={id}
         onChange={onChange}
+        placeholder={placeholder}
         required={required}
         type={type}
         value={value}

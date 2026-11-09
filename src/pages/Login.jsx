@@ -53,6 +53,7 @@ function Login() {
           id="email"
           label="Email"
           onChange={(event) => setEmail(event.target.value)}
+          placeholder="test@gmail.com"
           required
           type="email"
           value={email}
@@ -62,6 +63,7 @@ function Login() {
           id="password"
           label="Password"
           onChange={(event) => setPassword(event.target.value)}
+          placeholder="test1234"
           required
           type="password"
           value={password}
