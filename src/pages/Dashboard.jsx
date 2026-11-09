@@ -211,7 +211,6 @@ function Dashboard() {
     >
       <div className="mb-5 hidden shrink-0 flex-col gap-4 sm:mb-6 sm:flex-row sm:items-end sm:justify-between md:flex">
         <div>
-          <p className="mb-1 text-xs font-medium uppercase tracking-[0.16em] text-muted">Your workspace</p>
           <h2 className="text-2xl font-semibold tracking-tight text-ink sm:text-[28px]">My Notes</h2>
         </div>
         <button
@@ -244,7 +243,7 @@ function Dashboard() {
           </label>
           {filteredNotes.length === 0 ? (
             <section className="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-white bg-paper px-6 py-12 text-center text-sm text-muted shadow-[0_8px_28px_rgba(27,39,66,0.04)]">
-              No notes match: {searchQuery.trim()}
+              Can't find: {searchQuery.trim()}
             </section>
           ) : (
             <section aria-label="Your notes" className="grid min-h-0 min-w-0 flex-1 auto-rows-min grid-cols-1 gap-3 overflow-y-auto pb-24 md:gap-4 md:pb-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
